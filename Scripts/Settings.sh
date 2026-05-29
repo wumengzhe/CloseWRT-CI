@@ -11,13 +11,39 @@ sed -i "s/192\.168\.[0-9]*\.[0-9]*/$WRT_IP/g" $(find ./feeds/luci/modules/luci-m
 #添加编译日期标识
 sed -i "s/(\(luciversion || ''\))/(\1) + (' \/ $WRT_MARK-$WRT_DATE')/g" $(find ./feeds/luci/modules/luci-mod-status/ -type f -name "10_system.js")
 
-WIFI_FILE="./package/mtk/applications/mtwifi-cfg/files/mtwifi.sh"
-#修改WIFI名称
-sed -i "s/ImmortalWrt/$WRT_SSID/g" $WIFI_FILE
-#修改WIFI加密
-sed -i "s/encryption=.*/encryption='psk2+ccmp'/g" $WIFI_FILE
-#修改WIFI密码
-sed -i "/set wireless.default_\${dev}.encryption='psk2+ccmp'/a \\\t\t\t\t\t\set wireless.default_\${dev}.key='$WRT_WORD'" $WIFI_FILE
+WIFI_SH=$(find ./target/linux/{mediatek/filogic,qualcommax}/base-files/etc/uci-defaults/ -type f -name "*set-wireless.sh" 2>/dev/null)
+WIFI_UC="./package/network/config/wifi-scripts/files/lib/wifi/mac80211.uc"
+
+if [ -f "$WIFI_SH" ]; then
+    sed -i "s/BASE_SSID='.*'/BASE_SSID='$WRT_SSID'/g" $WIFI_SH
+    sed -i "s/BASE_WORD='.*'/BASE_WORD='$WRT_WORD'/g" $WIFI_SH
+elif [ -f "$WIFI_UC" ]; then
+    # 2.4G SSID（第1个ssid）
+    sed -i "0,/ssid='[^']*'/s/ssid='[^']*'/ssid='$WRT_SSID'/" $WIFI_UC
+    # 5G SSID（第2个ssid）
+    sed -i "0,/ssid='[^']*'/s/ssid='[^']*'/ssid='$WRT_SSID_5G'/" $WIFI_UC
+    sed -i "s/country='.*'/country='CN'/g" $WIFI_UC
+    if [ -z "$WRT_WORD" ]; then
+        sed -i "s/encryption='.*'/encryption='none'/g" $WIFI_UC
+        sed -i "/key='.*'/d" $WIFI_UC
+    else
+        sed -i "s/key='.*'/key='$WRT_WORD'/g" $WIFI_UC
+        sed -i "s/encryption='.*'/encryption='psk2+ccmp'/g" $WIFI_UC
+    fi
+fi
+
+# UCI默认脚本，确保2.4G/5G SSID正确分离
+UCI_FIX="./package/base-files/files/etc/uci-defaults/99-wifi-ssid"
+cat > $UCI_FIX << EOF
+#!/bin/sh
+uci set wireless.@wifi-iface[0].ssid='$WRT_SSID'
+uci set wireless.@wifi-iface[1].ssid='$WRT_SSID_5G'
+uci set wireless.@wifi-iface[0].key='$WRT_WORD'
+uci set wireless.@wifi-iface[1].key='$WRT_WORD'
+uci commit wireless
+exit 0
+EOF
+chmod +x $UCI_FIX
 
 CFG_FILE="./package/base-files/files/bin/config_generate"
 #修改默认IP地址
