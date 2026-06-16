@@ -65,8 +65,8 @@ jobs:
       #默认主机名
       WRT_NAME: Openwrt
       #默认WIFI名称
-      WRT_SSID: Openwrt
-      WRT_SSID_5G: Openwrt_5G
+      WRT_SSID: OpenWrt
+      WRT_SSID_5G: OpenWrt_5G
       #默认WIFI密码
       WRT_WORD: ''
       #默认地址
