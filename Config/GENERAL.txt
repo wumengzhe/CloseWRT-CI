@@ -40,6 +40,11 @@ CONFIG_PACKAGE_kmod-bonding=n    # 链路聚合，家用单网线 → 禁用
 CONFIG_PACKAGE_kmod-dsa=y       #MTK路由DSA交换架构，核心驱动 → 必须保留
 CONFIG_PACKAGE_kmod-dummy=n    # 虚拟网卡，不用虚拟机/多虚拟接口 → 禁用 主要用于开发测试、容器平台、断网环境模拟
 CONFIG_PACKAGE_kmod-fs-btrfs=n  # Btrfs高级文件系统，路由默认不用 → 禁用
+#⚠️ 实测（2026-10-20 MT7981 全量构建）：本行 =n **不生效**，defconfig 后仍 =y。
+#   已从 target/linux/mediatek/Makefile 的 DEFAULT_PACKAGES 摘除（Scripts/FeedFixes.sh），
+#   新 .config 里 DEFAULT_/MODULE_DEFAULT_ 符号也确实消失了，但 PACKAGE_ 符号仍被别的包
+#   以 select 硬拉回。要真关掉只能删包定义本身（KernelPackage 删 $(eval $(call KernelPackage,fs-btrfs))）。
+#   代价约 0.3MB，暂不处理；留此行仅作意图标记。
 CONFIG_PACKAGE_kmod-fs-ksmbd=n  # 网络文件共享内核模块，不用网络盘 → 禁用, SMB 网络共享内核模块，
 CONFIG_PACKAGE_kmod-fuse=n     # 用户态文件系统，普通路由无用 → 禁用
 CONFIG_PACKAGE_kmod-inet-diag=n  # 网络诊断模块，日常无需 → 禁用

@@ -14,9 +14,16 @@
 #   因此只能改目标 Makefile 本身。
 #
 # 本仓摘除项：kmod-fs-btrfs（Btrfs 内核模块，路由默认不用）
-#             fdisk（分区工具；注：luci-app-mini-diskmanager 的 +fdisk 仍会 select 回来）
-#             usbutils（lsusb 等，本仓已 =n）
+#             fdisk（分区工具）、usbutils（lsusb 等）
 # 有意保留：automount / blkid / blockdev（GENERAL.txt 中本就 =y，基础功能需要）。
+#
+# ⚠️ 实测效果（2026-10-20 CWRT-ALL run 39288786573 的最终 .config）：
+#   只有 **usbutils** 真正消失（连带 libusb-1.0 / usbids / libpopt 一并消失）；
+#   kmod-fs-btrfs 与 fdisk 虽已从本 Makefile 摘除，仍被别的包以 select 硬拉回 =y
+#   （fdisk 已知来源 = luci-app-mini-diskmanager 的 +fdisk）。
+#   与 OpenWRT-CI 的 kmod-qcom-ppe 同一机制：`=n` 无效 + 摘 DEFAULT_PACKAGES 也无效时，
+#   唯一硬杀是让包定义本身消失（KernelPackage 删 $(eval $(call KernelPackage,<name>)) 一行）。
+#   这两项合计约 0.3MB，性价比低，暂不硬杀；保留摘除仅为防上游变动。
 #
 # 作用面：只在 `DEFAULT_PACKAGES` 块（首行 + 其后所有以 \ 结尾的续行 + 终止行）内
 #   按整词移除目标包名，不触碰文件其余内容；逐包处理、幂等、摘除失败会告警。
