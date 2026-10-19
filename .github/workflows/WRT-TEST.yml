@@ -55,6 +55,8 @@ jobs:
       WRT_NAME: CWRT
       #默认WIFI名称
       WRT_SSID: CWRT
+      #默认5G WIFI名称（WRT-CORE.yml 的必填输入，漏传会导致 run 启动阶段 startup_failure）
+      WRT_SSID_5G: CWRT_5G
       #默认WIFI密码
       WRT_WORD: 12345678
       #默认地址
