@@ -54,6 +54,7 @@ UPDATE_PACKAGE "footstrap" "VizzleTF/luci-theme-footstrap" "main"
 UPDATE_PACKAGE "kucat" "sirpdboy/luci-theme-kucat" "master"
 UPDATE_PACKAGE "kucat-config" "sirpdboy/luci-app-kucat-config" "master"
 UPDATE_PACKAGE "shadcn" "eamonxg/luci-theme-shadcn" "main"
+UPDATE_PACKAGE "vantage" "anothaDev/luci-theme-vantage" "main"
 
 UPDATE_PACKAGE "momo" "nikkinikki-org/OpenWrt-momo" "main"
 UPDATE_PACKAGE "nikki" "nikkinikki-org/OpenWrt-nikki" "main"
@@ -96,7 +97,7 @@ UPDATE_PACKAGE "qmodem-generic" "LianXia233/luci-app-qmodem-generic" "main"
 UPDATE_VERSION() {
 	local PKG_NAME=$1
 	local PKG_MARK=${2:-false}
-	local PKG_FILES=$(find ./ ./feeds/packages/ -maxdepth 3 -type f -wholename "*/$PKG_NAME/Makefile")
+	local PKG_FILES=$(find ./package/ ./feeds/packages/ -maxdepth 3 -type f -wholename "*/$PKG_NAME/Makefile")
 
 	if [ -z "$PKG_FILES" ]; then
 		echo "$PKG_NAME not found!"
